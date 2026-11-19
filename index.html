@@ -4,190 +4,212 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChronoGauge - 时光计</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon"> <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
-        
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
         :root {
-            --bg-color: #f8f9fa;
-            --text-color: #212529;
-            --primary-color: #007bff;
-            --card-bg: #ffffff;
-            --border-color: #dee2e6;
-            --green: #28a745;
-            --red: #dc3545;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        html, body {
-            height: 100%;
+            --paper: #fcfbf7;
+            --ink: #25231f;
+            --muted: #615b52;
+            --rule: #d6d0c4;
+            --accent: #833d31;
+            --serif: Georgia, 'Songti SC', 'Noto Serif CJK SC', SimSun, serif;
+            --sans: system-ui, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
         }
 
         body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            min-height: 100vh;
             margin: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            background: var(--paper);
+            color: var(--ink);
+            font: 1rem/1.65 var(--sans);
         }
 
         .main-content {
-            flex: 1 0 auto;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
+            flex: 1;
+            padding: clamp(2rem, 5.4vw, 4.25rem) clamp(1.25rem, 6vw, 4.5rem) 3.5rem;
+        }
+
+        .container, .footer {
+            max-width: 70rem;
+            margin-inline: auto;
         }
 
         .container {
-            width: 100%;
-            max-width: 800px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 25px 30px;
-            box-shadow: var(--shadow);
-            margin-bottom: 25px;
-            border: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
         }
 
         h1 {
-            text-align: center;
-            color: var(--primary-color);
-            margin-bottom: 30px;
+            grid-column: 1 / -1;
+            margin: 0 0 clamp(2rem, 4.5vw, 3.5rem);
+            padding: 0.28em 0 0.35em;
+            border-top: 1px solid var(--ink);
+            border-bottom: 1px solid var(--rule);
+            font: 700 clamp(2.4rem, 6vw, 5rem)/1.12 var(--serif);
+            letter-spacing: -0.04em;
+            overflow-wrap: anywhere;
         }
 
-        .result-container {
-            text-align: center;
+        .card:not(.explanation) {
+            padding-inline-end: clamp(1.5rem, 4.5vw, 3.5rem);
         }
 
         .result-label {
-            font-size: 1.2rem;
-            color: #6c757d;
-            margin-bottom: 10px;
+            color: var(--accent);
+            font-size: 0.88rem;
+            font-weight: 650;
+            letter-spacing: 0.08em;
         }
 
         #offset-display {
-            font-size: 3.5rem;
-            font-weight: 700;
-            line-height: 1.2;
-            transition: color 0.3s ease;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 7.5rem;
+            margin-top: 1rem;
+            font: 700 clamp(2rem, 3.6vw, 3.25rem)/1.2 var(--serif);
+            overflow-wrap: anywhere;
+        }
+
+        #offset-display.loading, #offset-display.error {
+            font-size: clamp(1.75rem, 2.8vw, 2.5rem);
         }
 
         #offset-display.loading {
-            color: #6c757d;
-            font-size: 2rem;
+            color: var(--muted);
+        }
+
+        #offset-display.error, .offset-value {
+            color: var(--accent);
+        }
+
+        .offset-value {
+            display: block;
+            margin-block: 0.12em;
+            font-size: clamp(2.75rem, 5.5vw, 4.75rem);
+            font-variant-numeric: lining-nums tabular-nums;
         }
 
         .time-display {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .time-box {
-            text-align: center;
-            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: clamp(0.75rem, 3vw, 2rem);
+            margin-top: 1.75rem;
+            padding-block: 1rem;
+            border-block: 1px solid var(--rule);
         }
 
         .time-box h3 {
-            margin-top: 0;
-            font-size: 1rem;
-            color: #495057;
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 5px;
-            display: inline-block;
+            margin: 0 0 0.3rem;
+            color: var(--muted);
+            font-size: 0.86rem;
+            font-weight: 600;
         }
 
         .time-box p {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--text-color);
-            min-height: 40px;
+            margin: 0;
+            font: 700 clamp(1.4rem, 2.8vw, 2.35rem)/1.2 var(--serif);
+            font-variant-numeric: lining-nums tabular-nums;
+            overflow-wrap: anywhere;
         }
-        
+
         .sync-button {
-            display: block;
-            margin: 20px auto 0;
-            padding: 12px 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            color: #fff;
-            background-color: var(--primary-color);
-            border: none;
-            border-radius: 8px;
+            margin-top: 1.75rem;
+            padding: 0.65rem 1.4rem;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            font: 650 0.93rem/1.6 var(--sans);
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
         }
 
-        .sync-button:hover {
-            background-color: #0056b3;
+        .sync-button:hover:not(:disabled) {
+            background: var(--accent);
+            color: var(--paper);
         }
 
-        .sync-button:active {
-            transform: scale(0.98);
-        }
-        
         .sync-button:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
+            border-color: var(--rule);
+            color: var(--muted);
+            cursor: wait;
+        }
+
+        .sync-button:focus-visible, .footer a:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 4px;
+        }
+
+        .explanation {
+            padding-inline-start: clamp(1.5rem, 4.5vw, 3.5rem);
+            border-inline-start: 1px solid var(--rule);
+            font-size: 0.95rem;
+            line-height: 1.8;
         }
 
         .explanation h2 {
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .explanation p, .explanation li {
-            line-height: 1.8;
-        }
-        
-        code {
-            background-color: #e9ecef;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
+            margin: 0 0 1.1rem;
+            font: 700 clamp(1.7rem, 2.6vw, 2.25rem)/1.25 var(--serif);
         }
 
-        /* 页脚样式 */
+        .explanation p, .explanation ol, .explanation ul {
+            margin: 0 0 1rem;
+        }
+
+        .explanation p:last-child {
+            margin-bottom: 0;
+        }
+
+        .explanation ol, .explanation ul {
+            padding-inline-start: 1.4em;
+        }
+
+        .explanation li + li {
+            margin-top: 0.35em;
+        }
+
+        code {
+            font-family: ui-monospace, Consolas, monospace;
+            font-size: 0.9em;
+            overflow-wrap: anywhere;
+        }
+
         .footer {
-            flex-shrink: 0;
-            width: 100%;
-            text-align: center;
-            padding: 20px 0;
-            color: #6c757d;
-            font-size: 0.9rem;
-            border-top: 1px solid var(--border-color);
-            background-color: var(--card-bg);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.5rem 1.5rem;
+            margin-inline: max(clamp(1.25rem, 6vw, 4.5rem), calc((100% - 70rem) / 2));
+            padding-block: 1.1rem 1.35rem;
+            border-top: 1px solid var(--rule);
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.75rem;
         }
 
         .footer-links a {
-            color: var(--primary-color);
-            text-decoration: none;
-            margin: 0 15px;
-            transition: color 0.2s ease;
+            color: var(--accent);
+            text-underline-offset: 0.2em;
         }
 
-        .footer-links a:hover {
-            color: #0056b3;
-            text-decoration: underline;
-        }
-        
-        .footer-signature {
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: #828a93;
+        @media (max-width: 48rem) {
+            .container {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .card:not(.explanation) {
+                padding-inline-end: 0;
+            }
+
+            .explanation {
+                margin-top: 2.5rem;
+                padding: 1.6rem 0 0;
+                border-inline-start: 0;
+                border-top: 1px solid var(--rule);
+            }
         }
     </style>
 </head>
@@ -277,24 +299,42 @@
 
         // 核心同步函数
         async function syncTime() {
-            offsetDisplay.innerHTML = '正在校准中...';
+            if (syncButton.disabled) return;
+
+            offsetDisplay.textContent = '正在校准中...';
+            offsetDisplay.classList.remove('error');
             offsetDisplay.classList.add('loading');
             syncButton.disabled = true;
 
             const samples = [];
             const sampleCount = 5;
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
 
             try {
+                const syncStartedAt = Date.now();
+                const syncStartTick = performance.now();
                 // 进行多次采样
                 for (let i = 0; i < sampleCount; i++) {
-                    const t0 = Date.now();
-                    const response = await fetch(API_ENDPOINT);
+                    const sampleStartTick = performance.now();
+                    const response = await fetch(API_ENDPOINT, {
+                        cache: 'no-store',
+                        signal: controller.signal,
+                    });
                     if (!response.ok) throw new Error('Network response was not ok.');
                     const data = await response.json();
                     const t1 = Date.now();
-                    
-                    const rtt = t1 - t0;
-                    const offset = t1 - (data.serverTime + rtt / 2);
+                    const sampleEndTick = performance.now();
+                    const serverTime = data?.serverTime;
+                    if (!Number.isSafeInteger(serverTime) || !Number.isFinite(new Date(serverTime).getTime())) {
+                        throw new Error('Invalid server time.');
+                    }
+                    if (Math.abs((t1 - syncStartedAt) - (sampleEndTick - syncStartTick)) > 100) {
+                        throw new Error('Device clock changed during synchronization.');
+                    }
+
+                    const rtt = sampleEndTick - sampleStartTick;
+                    const offset = t1 - (serverTime + rtt / 2);
                     samples.push({ rtt, offset });
                 }
 
@@ -303,22 +343,15 @@
                 timeOffset = bestSample.offset;
 
                 const offsetValue = Math.round(timeOffset);
-                let message, color;
-
                 if (Math.abs(offsetValue) < 150) { // 提高容错阈值
-                    message = `时间基本同步`;
-                    color = 'var(--green)';
-                } else if (offsetValue > 0) {
-                    message = `本地时间偏快 <span style="font-size: 4.5rem; display: block; margin-top: 5px;">${offsetValue}</span> 毫秒`;
-                    color = 'var(--red)';
+                    offsetDisplay.textContent = '时间基本同步';
                 } else {
-                    message = `本地时间偏慢 <span style="font-size: 4.5rem; display: block; margin-top: 5px;">${Math.abs(offsetValue)}</span> 毫秒`;
-                    color = 'var(--green)';
+                    const description = offsetValue > 0 ? '本地时间偏快 ' : '本地时间偏慢 ';
+                    const value = document.createElement('span');
+                    value.className = 'offset-value';
+                    value.textContent = String(Math.abs(offsetValue));
+                    offsetDisplay.replaceChildren(description, value, ' 毫秒');
                 }
-
-                offsetDisplay.innerHTML = message;
-                offsetDisplay.style.color = color;
-                offsetDisplay.classList.remove('loading');
 
                 // 启动时钟更新
                 if (localTimeInterval) clearInterval(localTimeInterval);
@@ -328,8 +361,10 @@
             } catch (error) {
                 console.error('Time sync failed:', error);
                 offsetDisplay.textContent = '校准失败';
-                offsetDisplay.style.color = 'var(--red)';
+                offsetDisplay.classList.add('error');
             } finally {
+                clearTimeout(timeout);
+                offsetDisplay.classList.remove('loading');
                 syncButton.disabled = false;
             }
         }
